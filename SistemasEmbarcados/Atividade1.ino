@@ -23,6 +23,7 @@ int inputCount = 0;
 unsigned long debounceDelay = 10;
 unsigned long lastDebounceTime = 0;
 unsigned long currentTime = 0;
+unsigned long wrongTime = 0;
 
 void setup() {
   pinMode(buttonOne, INPUT);
@@ -37,7 +38,7 @@ void setup() {
 }
 
 void loop() {
-  Serial.println("Aperte a sequência correta de botões para continuar...");
+  Serial.println("\nAperte a sequência correta de botões para continuar...");
 	
   inputIndex = 0;
   inputCount = 0;
@@ -48,6 +49,7 @@ void loop() {
 
   if (!verifyPassword()) {
     Serial.println("Senha incorreta!");
+    wrongTry();
   }
   else {
     Serial.println("Senha correta, bem-vindo!");
@@ -116,24 +118,24 @@ void readPassword() {
 }
 
 void mainMenu() {
-  while(true) {
-    Serial.println("Pressione (a) para alterar a senha.");
-    Serial.println("Pressione (b) para visualizar a senha atual.");
-    Serial.println("Pressione (c) para ligar/desligar o buzzer.");
-    Serial.println("Pressione (d) para logout.");
+  mainMenuOptions();
 
+  while(true) {
     if (Serial.available() > 0) {
       char currentOption = Serial.read();
 
       switch(currentOption) {
         case 'a':
           changePassword();
+          mainMenuOptions();
           break;
         case 'b':
           showPassword();
+          mainMenuOptions();
           break;
         case 'c':
           buzzer();
+          mainMenuOptions();
           break;
         case 'd':
           return;
@@ -145,15 +147,25 @@ void mainMenu() {
   }
 }
 
+void mainMenuOptions() {
+  Serial.println("Pressione (a) para alterar a senha.");
+  Serial.println("Pressione (b) para visualizar a senha atual.");
+  Serial.println("Pressione (c) para ligar/desligar o buzzer.");
+  Serial.println("Pressione (d) para logout.");
+}
+
 void changePassword() {
   inputIndex = 0;
+  inputCount = 0;
 
-  Serial.println("Pressione o primeiro digito da senha:");
-  readPassword();
-  Serial.println("Pressione o segundo digito da senha:");
-  readPassword();
-  Serial.println("Pressione o terceiro digito da senha:");
-  readPassword();
+  while (inputIndex < 3) {
+    Serial.println("Pressione o primeiro digito da senha:");
+    readPassword();
+    Serial.println("Pressione o segundo digito da senha:");
+    readPassword();
+    Serial.println("Pressione o terceiro digito da senha:");
+    readPassword();
+  }
 
   for (int i = 0; i < 3; i++) {
     password[i] = userInputs[i];
@@ -181,4 +193,17 @@ void buzzer() {
     buzzerState = LOW;
     digitalWrite(buzzerPin, buzzerState); 
   }
+}
+
+void wrongTry() {
+  wrongTime = millis();
+
+  while (millis() - wrongTime < 2000) {
+    blinkLed(ledOne);
+    blinkLed(ledTwo);
+    blinkLed(ledThree);
+    digitalWrite(buzzerPin, HIGH);
+  }
+  
+  digitalWrite(buzzerPin, LOW);
 }
