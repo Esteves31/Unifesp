@@ -1,6 +1,7 @@
 #include <cctype>
 #include <fstream>
 #include <iostream>
+#include <string>
 
 #define N_STATES 3
 #define N_TYPES_CHAR 3
@@ -12,20 +13,20 @@ int T[N_STATES][N_TYPES_CHAR] = {   {1, -1, -1},
                                     {1, 1, 2},
                                     {-1, -1, -1}   };
 
-bool forward[N_STATES][N_TYPES_CHAR] {  {true, false, false},
-                                        {true, true, false},
-                                        {false, false, false}   };
+bool forward[N_STATES][N_TYPES_CHAR] = { {true, false, false},
+                                         {true, true, false},
+                                         {false, false, false} };
 
 bool accept[N_STATES] = {false, false, true};
 
-// Return 0 if ch is a char, 1 if ch is a integer and 2 if ch is other character.
+// Retorna 0 para letras, 1 para dígitos, e 2 para outros caracteres.
 int charType(char ch);
 
 int main() {
-    bool error = false;
     char currentChar;
     int currentState = 0;
-    int typeChar;
+    bool error = false;
+    std::string identifierBuffer;
 
     if (!outputFile.is_open() || !inputFile.is_open()) {
         std::cout << "Could not open the files";
@@ -33,41 +34,50 @@ int main() {
     }
 
     while (inputFile.get(currentChar)) {
-        typeChar = charType(currentChar);
-        
-        if (typeChar != 0)
-            error = true;
+        int typeChar = charType(currentChar);
 
-        while (!accept[currentState] && !error) {
-            typeChar = charType(currentChar);
-            int newState = T[currentState][typeChar];
+        int newState = T[currentState][typeChar];
 
-            if (newState == -1) {
-                error = true;
-                break;
+        if (newState == -1) {
+            if (accept[currentState]) {
+                outputFile << "ID";
+            } else {
+                outputFile << identifierBuffer;
             }
-
-            if (forward[currentState][typeChar]) {
-                char nxt = inputFile.peek();
-
-                if (charType(nxt) != 2) 
-                    inputFile.get(currentChar);
-            } 
-
-            currentState = newState;
-        }
-
-        if (accept[currentState]) {
-            outputFile << "ID";
-        }
-        else {
             outputFile << currentChar;
+
+            currentState = 0;
+            identifierBuffer.clear();
+            error = false;
+            continue;
         }
 
-        currentState = 0;
-        error = false;
+        currentState = newState;
+
+        if (forward[currentState][typeChar]) {
+            identifierBuffer += currentChar;
+        } else {
+            if (accept[currentState]) {
+                outputFile << "ID";
+            } else {
+                outputFile << identifierBuffer;
+            }
+            outputFile << currentChar;
+            
+            currentState = 0;
+            identifierBuffer.clear();
+        }
     }
 
+    if (accept[currentState]) {
+        outputFile << "ID";
+    } else {
+        outputFile << identifierBuffer;
+    }
+
+    inputFile.close();
+    outputFile.close();
+    
     return 0;
 }
 

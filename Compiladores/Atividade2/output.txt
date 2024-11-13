@@ -1,0 +1,50 @@
+/* ID ID ID ID ID ID 
+   ID ID ID ID ID. */
+
+ID ID[ 10 ];
+
+ID ID ( ID ID[], ID ID, ID ID )
+{	ID ID; ID ID; ID ID;
+	ID = ID;
+	ID = ID[ID];
+	ID = ID + 1;
+	ID (ID < ID){
+		ID (ID[ID] < ID){
+			ID = ID[ID];
+			ID = ID;
+		}
+		ID = ID + 1;
+	}
+	ID ID;
+}
+
+ID ID( ID ID[], ID ID, ID ID)
+{	ID ID; ID ID;   
+	ID = ID;
+	ID (ID < ID-1){
+		ID ID;
+		ID = ID(ID,ID,ID);
+		ID = ID[ID];
+		ID[ID] = ID[ID];
+		ID[ID] = ID;
+		ID = ID + 1;
+	}
+}
+
+ID ID(ID)
+{
+	ID ID;
+	ID = 0;
+	ID (ID < 10){
+		ID[ID] = ID();
+		ID = ID + 1;
+	}
+	ID(ID,0,10);
+	ID = 0;
+	ID (ID < 10){
+		ID(ID[ID]);
+		ID = ID + 1;
+	}
+}
+
+			
