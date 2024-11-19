@@ -3,23 +3,17 @@
 #include <iostream>
 #include <string>
 
-#define N_STATES 3
-#define N_TYPES_CHAR 3
+#define N_STATES 3 
+#define N_TYPES_CHAR 3  // Letra, dígito e outro 
 
 std::ifstream inputFile("sort.txt");
 std::ofstream outputFile("output.txt");
 
-int T[N_STATES][N_TYPES_CHAR] = {   {1, -1, -1},
-                                    {1, 1, 2},
-                                    {-1, -1, -1}   };
+const int transitionTable[N_STATES][N_TYPES_CHAR] = {{1, -1, -1}, {1, 1, 2}, {-1, -1, -1}};
+const bool forwardTable[N_STATES][N_TYPES_CHAR] = {{true, false, false}, {true, true, false}, {false, false, false}};
+const bool acceptTable[N_STATES] = {false, false, true};
 
-bool forward[N_STATES][N_TYPES_CHAR] = { {true, false, false},
-                                         {true, true, false},
-                                         {false, false, false} };
-
-bool accept[N_STATES] = {false, false, true};
-
-// Retorna 0 para letras, 1 para dígitos, e 2 para outros caracteres.
+// Retorna 0 se ch for uma letra, 1 se for dígito, e 2 se for outro tipo de caractere.
 int charType(char ch);
 
 int main() {
@@ -36,10 +30,10 @@ int main() {
     while (inputFile.get(currentChar)) {
         int typeChar = charType(currentChar);
 
-        int newState = T[currentState][typeChar];
+        int newState = transitionTable[currentState][typeChar];
 
         if (newState == -1) {
-            if (accept[currentState]) {
+            if (acceptTable[currentState]) {
                 outputFile << "ID";
             } else {
                 outputFile << identifierBuffer;
@@ -54,10 +48,10 @@ int main() {
 
         currentState = newState;
 
-        if (forward[currentState][typeChar]) {
+        if (forwardTable[currentState][typeChar]) {
             identifierBuffer += currentChar;
         } else {
-            if (accept[currentState]) {
+            if (acceptTable[currentState]) {
                 outputFile << "ID";
             } else {
                 outputFile << identifierBuffer;
@@ -69,7 +63,7 @@ int main() {
         }
     }
 
-    if (accept[currentState]) {
+    if (acceptTable[currentState]) {
         outputFile << "ID";
     } else {
         outputFile << identifierBuffer;
